@@ -20,9 +20,7 @@ const UserCreateModal = ({ onSave }: { onSave?: (name: string) => void }) => {
     <>
       <p>Input your name to start chatting with us...</p>
       <input value={name} onChange={({ target }) => setName(target.value)} />
-      <button onClick={onSaveButtonClicked}>
-        Create User
-      </button>
+      <button onClick={onSaveButtonClicked}>Create User</button>
     </>
   )
 }
@@ -35,15 +33,15 @@ const Page = () => {
 
   const onSendButtonClicked = async () => {
     if (!body || !user) return
-    await createChat({ chat: { body, name: user.name }})
+    await createChat({ chat: { body, name: user.name } })
     setBody('')
   }
 
   useEffect(() => {
     return listenChats({
-      callback: (chats => {
+      callback: (chats) => {
         setChats(chats)
-      }),
+      },
       onError: console.error,
     })
   }, [listenChats, setChats])
@@ -63,25 +61,30 @@ const Page = () => {
   }, [user, setModalOpen])
 
   return (
-    <div className="App">
+    <div className='App'>
       {modalOpen ? (
-        <UserCreateModal onSave={async (name) => {
-          const user = await createUser({ user: { name } })
-          setUser(user)
-          localStorage.setItem('userId', user.id)
-        }} /> 
+        <UserCreateModal
+          onSave={async (name) => {
+            const user = await createUser({ user: { name } })
+            setUser(user)
+            localStorage.setItem('userId', user.id)
+          }}
+        />
       ) : (
         <>
           <div>
             <ul>
-              {chats.map(chat => <li key={chat.id}>{chat.body} from {chat.name}</li>)}
+              {chats.map((chat) => (
+                <li key={chat.id}>
+                  {chat.body} from {chat.name}
+                </li>
+              ))}
             </ul>
           </div>
           <input value={body} onChange={({ target }) => setBody(target.value)} />
-          <button onClick={onSendButtonClicked} >Send</button>
+          <button onClick={onSendButtonClicked}>Send</button>
         </>
       )}
-      
     </div>
   )
 }
