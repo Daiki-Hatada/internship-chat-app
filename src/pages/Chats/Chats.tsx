@@ -1,11 +1,20 @@
-import { useEffect, useState } from 'react'
+import { where } from 'firebase/firestore'
+import { useEffect, useRef, useState } from 'react'
 import { createChat } from '../../libs/chats/createChat'
+import { listChats } from '../../libs/chats/listChats'
 import { listenChats } from '../../libs/chats/listenChats'
 import { createUser } from '../../libs/users/createUser'
 import { getUser } from '../../libs/users/getUser'
 import { Chat } from '../../types/Chat.types'
 import { User } from '../../types/User.types'
 import './Chats.css'
+
+const ChatBubble = ({ chat, fromMe }: { chat: Chat, fromMe?: boolean }) => 
+  <li className={`chat-bubble-wrapper ${fromMe ? 'from-me' : 'to-me'}`} >
+    <span className={`chat-bubble ${fromMe ? 'from-me' : 'to-me'}`}>
+      {chat.body} from {chat.name}
+    </span>
+  </li>
 
 const UserCreateModal = ({ onSave }: { onSave?: (name: string) => void }) => {
   const [name, setName] = useState<string>('')
@@ -30,6 +39,7 @@ const Page = () => {
   const [modalOpen, setModalOpen] = useState(false)
   const [chats, setChats] = useState<Chat[]>([])
   const [body, setBody] = useState<string>('')
+  const chatContainerRef = useRef<HTMLDivElement>(null)
 
   const onSendButtonClicked = async () => {
     if (!body || !user) return
@@ -38,13 +48,27 @@ const Page = () => {
   }
 
   useEffect(() => {
+    if (!chats.length) {
+      ;(async () => {
+        const fetchedChats = await listChats()
+        setChats(fetchedChats)
+      })()
+    }
     return listenChats({
-      callback: (chats) => {
-        setChats(chats)
+      callback: (incomingChats) => {
+        setChats(prev => {
+          const filteredChats = incomingChats.filter(ele => ele.createdAt > prev[0].createdAt)
+          return [...filteredChats, ...prev]
+        })
       },
       onError: console.error,
+      queryConstraints: [where('createdAt', '>=', Date.now())],
     })
-  }, [listenChats, setChats])
+  }, [listenChats, listChats, setChats])
+
+  useEffect(() => {
+    if (chatContainerRef.current) chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight
+  }, [chats])
 
   useEffect(() => {
     if (user) {
@@ -72,13 +96,9 @@ const Page = () => {
         />
       ) : (
         <>
-          <div>
-            <ul>
-              {chats.map((chat) => (
-                <li key={chat.id}>
-                  {chat.body} from {chat.name}
-                </li>
-              ))}
+          <div ref={chatContainerRef} className='chat-area'>
+            <ul className='chat-container'>
+              {[...chats].reverse().map((chat) => <ChatBubble key={chat.id} chat={chat} fromMe={chat.name === user?.name} />)}
             </ul>
           </div>
           <input value={body} onChange={({ target }) => setBody(target.value)} />

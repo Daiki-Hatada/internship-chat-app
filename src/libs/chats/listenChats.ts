@@ -3,6 +3,8 @@ import {
   FirestoreError,
   where,
   orderBy,
+  QueryConstraint,
+  limit,
 } from 'firebase/firestore'
 import { Chat, isChat } from '../../types/Chat.types'
 import { listen } from '../listen'
@@ -10,12 +12,14 @@ import { listen } from '../listen'
 type Props = {
   callback?: (chats: Chat[]) => void
   onError?: (error?: FirestoreError) => void
+  queryConstraints?: QueryConstraint[]
 }
 
-export const listenChats = ({ callback, onError }: Props = {}): Unsubscribe => {
+export const listenChats = ({ callback, onError, queryConstraints }: Props = {}): Unsubscribe => {
+  const q = [where('deletedAt', '==', null), limit(1000), orderBy('createdAt', 'desc')]
   const unsubscribe = listen({
     collectionName: 'chats',
-    queryConstraints: [where('deletedAt', '==', null), orderBy('createdAt')],
+    queryConstraints: queryConstraints ? [...q, ...queryConstraints] : q,
     callback: (snapshot) => {
       const data: (Chat | undefined)[] = snapshot.docs.map((doc) => {
         const datum = {

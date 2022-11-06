@@ -4,10 +4,10 @@ import { db } from './firebase'
 
 type Props = {
   collectionName: string
-  queryConstraints: QueryConstraint[]
+  queryConstraints?: QueryConstraint[]
 }
 
-export const list = async ({ collectionName, queryConstraints }: Props): Promise<BaseModel[]> => {
+export const list = async ({ collectionName, queryConstraints = [] }: Props): Promise<BaseModel[]> => {
   const collectionRef = collection(db, collectionName)
   const q = query(collectionRef, ...queryConstraints)
   const { docs } = await getDocs(q)

@@ -39,3 +39,45 @@
 .read-the-docs {
   color: #888;
 }
+
+.chat-bubble {
+  padding: .25rem 1rem;
+  list-style: none;
+  background-color: azure;
+  color: #888;
+  /* border-radius: .25rem; */
+}
+
+.chat-bubble.to-me {
+  border-radius: 0 .25rem .25rem .25rem;
+}
+
+.chat-bubble.from-me {
+  border-radius: .25rem 0 .25rem .25rem;
+}
+
+.chat-bubble-wrapper {
+  display: flex;
+  width: 100%;
+  max-width: 25rem;
+}
+
+.chat-bubble-wrapper.to-me {
+  justify-content: flex-start;
+}
+
+.chat-bubble-wrapper.from-me {
+  justify-content: flex-end;
+  border-radius: .25rem 0 .25rem .25rem;
+}
+
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+}
+
+.chat-area {
+  height: 20rem;
+  overflow: scroll;
+}
