@@ -1,11 +1,4 @@
-import {
-  Unsubscribe,
-  FirestoreError,
-  where,
-  orderBy,
-  QueryConstraint,
-  limit,
-} from 'firebase/firestore'
+import { Unsubscribe, FirestoreError, where, orderBy, QueryConstraint, limit } from 'firebase/firestore'
 import { Chat, isChat } from '../../types/Chat.types'
 import { listen } from '../listen'
 

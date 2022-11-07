@@ -9,12 +9,13 @@ import { Chat } from '../../types/Chat.types'
 import { User } from '../../types/User.types'
 import './Chats.css'
 
-const ChatBubble = ({ chat, fromMe }: { chat: Chat, fromMe?: boolean }) => 
-  <li className={`chat-bubble-wrapper ${fromMe ? 'from-me' : 'to-me'}`} >
+const ChatBubble = ({ chat, fromMe }: { chat: Chat; fromMe?: boolean }) => (
+  <li className={`chat-bubble-wrapper ${fromMe ? 'from-me' : 'to-me'}`}>
     <span className={`chat-bubble ${fromMe ? 'from-me' : 'to-me'}`}>
       {chat.body} from {chat.name}
     </span>
   </li>
+)
 
 const UserCreateModal = ({ onSave }: { onSave?: (name: string) => void }) => {
   const [name, setName] = useState<string>('')
@@ -56,8 +57,8 @@ const Page = () => {
     }
     return listenChats({
       callback: (incomingChats) => {
-        setChats(prev => {
-          const filteredChats = incomingChats.filter(ele => ele.createdAt > prev[0].createdAt)
+        setChats((prev) => {
+          const filteredChats = incomingChats.filter((ele) => ele.createdAt > prev[0].createdAt)
           return [...filteredChats, ...prev]
         })
       },
@@ -98,7 +99,9 @@ const Page = () => {
         <>
           <div ref={chatContainerRef} className='chat-area'>
             <ul className='chat-container'>
-              {[...chats].reverse().map((chat) => <ChatBubble key={chat.id} chat={chat} fromMe={chat.name === user?.name} />)}
+              {[...chats].reverse().map((chat) => (
+                <ChatBubble key={chat.id} chat={chat} fromMe={chat.name === user?.name} />
+              ))}
             </ul>
           </div>
           <input value={body} onChange={({ target }) => setBody(target.value)} />
