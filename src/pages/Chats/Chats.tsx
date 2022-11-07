@@ -1,5 +1,5 @@
 import { where } from 'firebase/firestore'
-import { useEffect, useRef, useState } from 'react'
+import { memo, useEffect, useRef, useState } from 'react'
 import { createChat } from '../../libs/chats/createChat'
 import { listChats } from '../../libs/chats/listChats'
 import { listenChats } from '../../libs/chats/listenChats'
@@ -9,13 +9,15 @@ import { Chat } from '../../types/Chat.types'
 import { User } from '../../types/User.types'
 import './Chats.css'
 
-const ChatBubble = ({ chat, fromMe }: { chat: Chat; fromMe?: boolean }) => (
-  <li className={`chat-bubble-wrapper ${fromMe ? 'from-me' : 'to-me'}`}>
-    <span className={`chat-bubble ${fromMe ? 'from-me' : 'to-me'}`}>
-      {chat.body} from {chat.name}
-    </span>
-  </li>
-)
+const ChatBubble = memo(function ChatBubble({ chat, fromMe }: { chat: Chat; fromMe?: boolean }) {
+  return (
+    <li className={`chat-bubble-wrapper ${fromMe ? 'from-me' : 'to-me'}`}>
+      <span className={`chat-bubble ${fromMe ? 'from-me' : 'to-me'}`}>
+        {chat.body} from {chat.name}
+      </span>
+    </li>
+  )
+})
 
 const UserCreateModal = ({ onSave }: { onSave?: (name: string) => void }) => {
   const [name, setName] = useState<string>('')
