@@ -1,13 +1,14 @@
 import { collection, getDocs, query, QueryConstraint } from 'firebase/firestore'
-import { BaseModel, isBaseModel } from '../types/BaseModel.types'
+import { BaseModel } from '../types/BaseModel.types'
 import { db } from './firebase'
 
-type Props = {
+type Props<T> = {
   collectionName: string
   queryConstraints?: QueryConstraint[]
+  isT: (value: unknown) => value is T
 }
 
-export const list = async ({ collectionName, queryConstraints = [] }: Props): Promise<BaseModel[]> => {
+export const list = async <T extends BaseModel>({ collectionName, queryConstraints = [], isT }: Props<T>): Promise<T[]> => {
   const collectionRef = collection(db, collectionName)
   const q = query(collectionRef, ...queryConstraints)
   const { docs } = await getDocs(q)
@@ -16,7 +17,7 @@ export const list = async ({ collectionName, queryConstraints = [] }: Props): Pr
       id: doc.id,
       ...doc.data(),
     }
-    if (!isBaseModel(datum)) throw new Error('Invalid data found.')
+    if (!isT(datum)) throw new Error('Invalid data found.')
     return datum
   })
   return data

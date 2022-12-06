@@ -10,9 +10,10 @@ type Props<T extends BaseModel> = {
     deletedAt?: number | null
   }
   collectionName: string
+  isT: (value: unknown) => value is T
 }
 
-export const create = async <T extends BaseModel>({ inputData, collectionName }: Props<T>): Promise<T> => {
+export const create = async <T extends BaseModel>({ inputData, collectionName, isT }: Props<T>): Promise<T> => {
   const now = Date.now()
   const { id, ...data } = {
     ...inputData,
@@ -22,18 +23,20 @@ export const create = async <T extends BaseModel>({ inputData, collectionName }:
   }
 
   const collectionRef = collection(db, collectionName)
-  // TODO: Remove `as T`
+  let createdObject: unknown
   if (id) {
     await setDoc(doc(collectionRef, id), data)
-    return {
+    createdObject = {
       id,
       ...data,
-    } as T
+    }
   } else {
     const createdDocRef = await addDoc(collectionRef, data)
-    return {
+    createdObject = {
       id: createdDocRef.id,
       ...data,
-    } as T
+    }
   }
+  if (!isT(createdObject)) throw new Error('Invalid data found.')
+  return createdObject
 }
